@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Рисование окружности в Canvas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="btn">
+        <button id="clear" class="del">Очистить</button>
+        <button id="paiButton">Перо</button>
+        <button id="lineButton">Прямая</button>
+        <button id="circleButton">Окружность</button>
+        <button id="download">Скачать</button>
+        <input type="range" id="rangePS" min="1" max="100" value="3" step="1">
+        <span id="widthValue">3</span>
+        <label id="color">Цвет: </label>
+        <label id="color-t">#000000</label>
+        <input type="color" id="color-picker" value="#000">
+    </div>
+
+    <div class="nav">
+        <div class="flex-col">
+
+            <div class="div-for-addH">
+                <canvas id="myCanvas" width="1000" height="600"></canvas>
+                <div>
+                    <div class="addH" id="canvasWi"> + </div>
+                    <div class="addH" id="canvasWd"> - </div>
+                </div>
+            </div>
+
+
+            <div class="f-r">
+                <div class="addW" id="canvasHi"> + </div>
+                <div class="addW" id="canvasHd"> - </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #color {
+            color: #fff;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            padding: 0px;
+            border: none;
+        }
+
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+            width: min-content;
+            /* height: max-content; */
+        }
+
+        .f-r {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .addH {
+            background-color: rgb(255, 255, 255);
+            padding: 10px;
+            margin: 0px 10px 0px 10px;
+            font-weight: bold;
+            font-size: 1.8em;
+            cursor: pointer;
+        }
+
+        .addW {
+            
+            background-color: rgb(255, 255, 255);
+            padding: 0px 20px;
+            margin: 10px 0px 0px 0px;
+            font-weight: bold;
+            font-size: 1.8em;
+            cursor: pointer;
+        }
+
+        .div-for-addH {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        body {
+            background-color: rgb(0, 0, 0);
+            display: flex;
+            position: relative;
+            height: 100vh;
+        }
+
+        .del {
+            background-color: crimson;
+        }
+
+        .btn {
+            background-color: rgba(136, 47, 47, 0.671);
+            margin-top: 1px;
+            margin-left: 1px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #rangePS {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+
+
+        .nav {
+            background-color: rgb(81, 25, 137);
+            margin-top: 1px;
+            margin-left: 10px;
+            margin-right: 1px;
+            width: 100%;
+            height: 100%;
+        }
+
+
+        #download {
+            background-color: rgb(164, 227, 121);
+        }
+
+
+        button {
+            margin-bottom: 2px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            box-shadow:
+                inset -2px -2px 2px 2px rgba(255, 255, 255, 0.487),
+                inset 2px 2px 5px 1px #000000a4;
+
+        }
+
+        canvas {
+            background-color: #fff;
+            position: relative;
+            margin-top: 5px;
+            box-shadow: #000000 0px 0 10px 5px;
+        }
+
+        #widthValue {
+            color: #fff;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+    </style>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const context = canvas.getContext('2d');
+        context.lineWidth = 3;
+        context.lineCap = "round";
+        const widthValue = document.getElementById('widthValue');
+        const rangePS = document.getElementById('rangePS');
+        rangePS.addEventListener('input', function () {
+            let Width = this.value;
+            context.lineWidth = Width
+            widthValue.textContent = Width;
+        });
+
+        let x1, y1, x2, y2;
+        let isDrawingLine = false
+        let painting = false
+        let pai = false
+
+        let circle = false
+        let p = false
+
+        const toFalse = () => {
+            isDrawingLine = false
+            painting = false
+            circle = false
+            p = false
+            pai = false
+
+        }
+
+        const colorPicker = document.getElementById('color-picker');
+        const color = document.getElementById('color-t');
+        colorPicker.addEventListener('input', function () {
+            // Получаем выбранный цвет
+            context.strokeStyle = colorPicker.value;
+            color.textContent = this.value;
+            color.style.color = this.value
+            console.log(color.color)
+            console.log(color.color)
+            console.log(color.color)
+            console.log(color.color)
+        });
+
+        const canvasWi = document.getElementById('canvasWi')
+        const canvasWd = document.getElementById('canvasWd')
+        const canvasHi = document.getElementById('canvasHi')
+        const canvasHd = document.getElementById('canvasHd')
+
+        canvasWi.addEventListener('click', () => {
+            const l = canvas.width;
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.width = l + 100
+            context.putImageData(imageData, 0, 0);
+            context.lineWidth = widthValue.textContent
+            context.lineCap = "round";
+            context.strokeStyle = colorPicker.value;
+        })
+
+        canvasWd.addEventListener('click', () => {
+            const l = canvas.width;
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.width = l - 100
+            context.putImageData(imageData, 0, 0);
+            context.lineWidth = widthValue.textContent
+            context.lineCap = "round";
+            context.strokeStyle = colorPicker.value;
+        })
+
+        canvasHi.addEventListener('click', () => {
+            const l = canvas.height;
+            console.log('canvas.height', canvas.height)
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.height = l + 100
+            context.putImageData(imageData, 0, 0);
+            context.lineWidth = widthValue.textContent
+            context.lineCap = "round";
+            context.strokeStyle = colorPicker.value;
+        })
+
+        canvasHd.addEventListener('click', () => {
+            const l = canvas.height;
+            console.log('canvas.height', canvas.height)
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.height = l - 100
+            context.putImageData(imageData, 0, 0);
+            context.lineWidth = widthValue.textContent
+            context.lineCap = "round";
+            context.strokeStyle = colorPicker.value;
+        })
+
+        const arr1 = [isDrawingLine, painting, circle, p]
+        const arr2 = [circle, p]
+
+        let imageData1
+
+        const paiButton = document.getElementById('paiButton')
+        paiButton.addEventListener('click', () => {
+
+            if (pai === true) {
+                toFalse()
+                console.log(1)
+                pai = false
+                paiButton.style.height = ""
+                isDrawingLine = false
+            }
+            else {
+                toFalse()
+
+                pai = true
+                circleButton.style.height = ""
+                lineButton.style.height = ''
+                paiButton.style.height = "100px"
+            }
+
+            console.log('pai', pai, 'isDrawingLine', isDrawingLine, 'circle', circle, 'painting', painting)
+
+
+        })
+
+        const lineButton = document.getElementById('lineButton')
+        lineButton.addEventListener('click', () => {
+            toFalse()
+            painting = true
+            lineButton.style.height = "100px"
+            circleButton.style.height = ""
+            paiButton.style.height = ""
+        })
+
+        const circleButton = document.getElementById('circleButton')
+        circleButton.addEventListener('click', () => {
+            toFalse()
+            lineButton.style.height = ""
+            paiButton.style.height = ""
+            circleButton.style.height = "100px"
+            circle = true
+            console.log('up:', 'pai', pai, 'isDrawingLine', isDrawingLine)
+
+
+        })
+
+
+
+        canvas.addEventListener("mousedown", (e) => {
+            if (painting) {
+                arr2.map((value) => value = false)
+                imageData1 = context.getImageData(0, 0, canvas.width, canvas.height)
+                isDrawingLine = true
+                x1 = e.offsetX
+                y1 = e.offsetY
+            }
+            if (pai) {
+                isDrawingLine = true
+            }
+
+            if (circle) {
+                arr2.map((value) => value = false)
+
+                p = true
+                imageData1 = context.getImageData(0, 0, canvas.width, canvas.height)
+
+                x1 = e.offsetX
+                y1 = e.offsetY
+            }
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (painting) {
+
+                if (isDrawingLine) {
+                    x2 = e.offsetX
+                    y2 = e.offsetY
+                    if (shiftKey) {
+
+                        if (Math.abs((x2 - x1) / (y2 - y1)) > 2) {
+                            context.clearRect(0, 0, canvas.width, canvas.height)
+                            context.putImageData(imageData1, 0, 0);
+                            context.moveTo(x1, y1)
+                            context.lineTo(x2, y1)
+                            context.stroke()
+                            context.beginPath()
+                        } else if (Math.abs((y2 - y1) / (x2 - x1) > 2)) {
+                            context.clearRect(0, 0, canvas.width, canvas.height)
+                            context.putImageData(imageData1, 0, 0);
+                            context.moveTo(x1, y1)
+                            context.lineTo(x1, y2)
+                            context.stroke()
+                            context.beginPath()
+                        } else {
+                            context.clearRect(0, 0, canvas.width, canvas.height)
+                            context.putImageData(imageData1, 0, 0);
+                            context.moveTo(x1, y1)
+                            context.lineTo(x2, y2)
+                            context.stroke()
+                            context.beginPath()
+                        }
+                    }
+                    else {
+                        context.clearRect(0, 0, canvas.width, canvas.height)
+                        context.putImageData(imageData1, 0, 0);
+                        context.moveTo(x1, y1)
+                        context.lineTo(x2, y2)
+                        context.stroke()
+                        context.beginPath()
+                    }
+
+                }
+            }
+
+            if (circle) {
+                if (p) {
+                    if (shiftKey) {
+                        x2 = e.offsetX
+                        y2 = x2
+                        context.ellipse(x1, y1, Math.abs(x2 - x1), Math.abs(x2 - x1), 0, 0, 2 * Math.PI);
+                    }
+                    else {
+                        x2 = e.offsetX
+                        y2 = e.offsetY
+                        context.ellipse(x1, y1, Math.abs(x2 - x1), Math.abs(y2 - y1), 0, 0, 2 * Math.PI);
+                    }
+                    context.clearRect(0, 0, canvas.width, canvas.height)
+                    context.putImageData(imageData1, 0, 0);
+                    context.stroke();
+                    context.beginPath();
+                }
+            }
+
+            if (pai) {
+                if (isDrawingLine) {
+
+                    context.lineTo(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+                }
+            }
+        })
+        canvas.addEventListener("mouseup", (e) => {
+            circleButton.style.height = ""
+            lineButton.style.height = ""
+
+            if (painting) {
+                isDrawingLine = false
+                painting = false
+            }
+
+            if (circle) {
+                circle = false
+                p = false
+            }
+
+            if (pai) {
+                isDrawingLine = false
+                context.beginPath()
+
+            }
+            console.log('up:', 'pai', pai, 'isDrawingLine', isDrawingLine)
+        });
+
+        let shiftKey
+        document.addEventListener('keydown', function (e) {
+            if (event.shiftKey) {
+                shiftKey = true
+            }
+        });
+
+        document.addEventListener('keyup', function (e) {
+            if (!event.shiftKey) {
+                shiftKey = false
+            }
+        });
+
+
+        const clearButton = document.getElementById("clear");
+        clearButton.addEventListener('click', function () {
+            context.clearRect(0, 0, canvas.width, canvas.height)
+        })
+
+        const downloadImage = () => {
+            const dataURL = canvas.toDataURL('image/png')
+            const link = document.createElement('a')
+            link.href = dataURL
+            link.download = 'myImage ' + Date().split(' ').slice(1, 5).join('_')
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+        }
+        const downloadButton = document.getElementById('download')
+        downloadButton.addEventListener('click', downloadImage)
+
+    </script>
+</body>
+
+</html>
