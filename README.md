@@ -1,6 +1,5 @@
 # Paint-JS Простая Рисовалка
-## Пробовать
-https://neoramcreator.github.io/Paint-JS/
+## Пробовать https://neoramcreator.github.io/Paint-JS/
 
 
 ![2023-09-03_22-50-58](https://github.com/NeoRamCreator/Paint-JS/assets/93080981/149e9346-ac44-430b-8eaa-d9cb1ccd1a31)
